@@ -26,17 +26,20 @@ namespace DotNetty.Codecs.Mllp.Tests
             {
                 ch.WriteOutbound(_msg.Retain());
 
-                var prepend = ch.ReadOutbound<byte[]>();
-                Assert.Equal(_prepend.Length, prepend.Length);
-
-
                 var buf = ch.ReadOutbound<IByteBuffer>();
+                Assert.Equal(_prepend.Length, buf.ReadableBytes);
+                Assert.Equal(_prepend, buf.ToArray());
+                buf.Release();
+
+
+                buf = ch.ReadOutbound<IByteBuffer>();
                 Assert.Same(buf, _msg);
                 buf.Release();
 
-                var append = ch.ReadOutbound<byte[]>();
-                Assert.Equal(_append.Length, append.Length);
-                Assert.Equal(_append, append);
+                buf = ch.ReadOutbound<IByteBuffer>();
+                Assert.Equal(_append.Length, buf.ReadableBytes);
+                Assert.Equal(_append, buf.ToArray());
+                buf.Release();
             }
         }
     }

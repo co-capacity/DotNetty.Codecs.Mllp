@@ -25,9 +25,9 @@ namespace DotNetty.Codecs.Mllp
 
         protected override void Encode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
         {
-            output.Add(_prepend);
+            output.Add(Unpooled.WrappedBuffer(_prepend));
             output.Add(message.Retain());
-            output.Add(_append);
+            output.Add(Unpooled.WrappedBuffer(_append));
         }
     }
 }
