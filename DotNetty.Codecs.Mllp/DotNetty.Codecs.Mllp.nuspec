@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>DotNetty.Codecs.Mllp</id>
+        <version>0.0.0</version>
+        <authors>Co-Capacity</authors>
+        <owners>Co-Capacity</owners>
+        <licenseUrl>https://github.com/co-capacity/DotNetty.Codecs.Mllp/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/co-capacity/DotNetty.Codecs.Mllp</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>DotNetty MLLP encoder/decoders</description>
+        <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+        <copyright>Copyright 2016</copyright>
+        <language>en-US</language>
+        <dependencies>
+            <dependency id="DotNetty.Codecs" version="0.4.0" />
+        </dependencies>
+    </metadata>
+	<files>
+		<file src="bin\Release\DotNetty.Codecs.Mllp.dll" target="lib\net451\DotNetty.Codecs.Mllp.dll" />
+	</files>
+</package>
