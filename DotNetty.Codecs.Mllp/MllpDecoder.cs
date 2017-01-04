@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DotNetty.Buffers;
+using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
 
 namespace DotNetty.Codecs.Mllp
@@ -8,10 +8,23 @@ namespace DotNetty.Codecs.Mllp
     /// <summary>
     ///     A decoder that splits the received <see cref="IByteBuffer" /> by frame from appended bytes and prepended bytes.
     /// </summary>
-    public class FrameDecoder : DelimiterBasedFrameDecoder
+    public class MllpDecoder : DelimiterBasedFrameDecoder
     {
-        private readonly byte[] _prepend;
+        private readonly ByteProcessor _processor;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="maximumFrameLength">
+        ///     The maximum length of the decoded frame
+        ///     NOTE: A see <see cref="TooLongFrameException" /> is thrown if the length of the frame exceeds this
+        ///     value.
+        /// </param>
+        public MllpDecoder(int maximumFrameLength)
+    : base(maximumFrameLength, Unpooled.CopiedBuffer(new byte[]{ 28, 13}))
+        {
+            _processor = new ByteProcessor.IndexOfProcessor(11);
+        }
         /// <summary>
         /// </summary>
         /// <param name="maximumFrameLength">
@@ -21,11 +34,10 @@ namespace DotNetty.Codecs.Mllp
         /// </param>
         /// <param name="prepend">Frame prepend bytes</param>
         /// <param name="append">Frame append bytes</param>
-        public FrameDecoder(int maximumFrameLength, byte[] prepend, byte[] append)
+        public MllpDecoder(int maximumFrameLength, byte prepend, byte[] append)
             : base(maximumFrameLength, Unpooled.CopiedBuffer(append))
         {
-            if (prepend == null) throw new ArgumentNullException(nameof(prepend));
-            _prepend = prepend;
+            _processor = new ByteProcessor.IndexOfProcessor(prepend);
         }
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List<object> output)
@@ -33,7 +45,7 @@ namespace DotNetty.Codecs.Mllp
             var buf = (IByteBuffer) Decode(context, input);
             if (buf != null)
             {
-                var pos = IndexOf(buf, _prepend);
+                var pos = buf.ForEachByte(_processor);
                 if (pos >= 0)
                 {
                     buf.SkipBytes(pos + 1);
@@ -45,27 +57,6 @@ namespace DotNetty.Codecs.Mllp
                 }
                 buf.Release();
             }
-        }
-
-        private static int IndexOf(IByteBuffer haystack, IReadOnlyList<byte> needle)
-        {
-            for (var i = haystack.ReaderIndex; i < haystack.WriterIndex; i++)
-            {
-                var haystackIndex = i;
-                int needleIndex;
-                for (needleIndex = 0; needleIndex < needle.Count; needleIndex++)
-                {
-                    if (haystack.GetByte(haystackIndex) != needle[needleIndex])
-                        break;
-                    haystackIndex++;
-                    if (haystackIndex == haystack.WriterIndex && needleIndex != needle.Count - 1)
-                        return -1;
-                }
-
-                if (needleIndex == needle.Count)
-                    return i - haystack.ReaderIndex;
-            }
-            return -1;
         }
     }
 }

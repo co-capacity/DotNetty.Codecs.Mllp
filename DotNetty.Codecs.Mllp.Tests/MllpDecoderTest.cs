@@ -13,14 +13,14 @@ namespace DotNetty.Codecs.Mllp.Tests
             _iso = Encoding.GetEncoding("ISO-8859-1");
         }
 
-        private readonly byte[] _prepend = {11};
+        private readonly byte _prepend = 11;
         private readonly byte[] _append = {28, 13};
         private readonly Encoding _iso;
 
         [Fact]
         public void TestFailMissingPrepend()
         {
-            var ch = new EmbeddedChannel(new FrameDecoder(1024, _prepend, _append));
+            var ch = new EmbeddedChannel(new MllpDecoder(1024, _prepend, _append));
             for (var i = 0; i < 2; i++)
                 Assert.Throws<CorruptedFrameException>(
                     () => ch.WriteInbound(Unpooled.Buffer(3).WriteBytes(_iso.GetBytes("A")).WriteBytes(_append)));
@@ -29,19 +29,19 @@ namespace DotNetty.Codecs.Mllp.Tests
         [Fact]
         public void TestFailToLargeMessage()
         {
-            var ch = new EmbeddedChannel(new FrameDecoder(2, _prepend, _append));
+            var ch = new EmbeddedChannel(new MllpDecoder(2, _prepend, _append));
             for (var i = 0; i < 2; i++)
             {
                 Assert.Throws<TooLongFrameException>(
                     () =>
                         ch.WriteInbound(
                             Unpooled.Buffer(5)
-                                .WriteBytes(_prepend)
+                                .WriteByte(_prepend)
                                 .WriteBytes(_iso.GetBytes("AAAA"))
                                 .WriteBytes(_append)));
 
                 ch.WriteInbound(Unpooled.Buffer(4)
-                    .WriteBytes(_prepend)
+                    .WriteByte(_prepend)
                     .WriteBytes(_iso.GetBytes("A"))
                     .WriteBytes(_append));
                 var buf = ch.ReadInbound<IByteBuffer>();
@@ -55,11 +55,11 @@ namespace DotNetty.Codecs.Mllp.Tests
         [Fact]
         public void TestFullMessage()
         {
-            var ch = new EmbeddedChannel(new FrameDecoder(1024, _prepend, _append));
+            var ch = new EmbeddedChannel(new MllpDecoder(1024, _prepend, _append));
             for (var i = 0; i < 2; i++)
             {
                 ch.WriteInbound(Unpooled.Buffer(4)
-                    .WriteBytes(_prepend)
+                    .WriteByte(_prepend)
                     .WriteBytes(_iso.GetBytes("A"))
                     .WriteBytes(_append));
                 var buf = ch.ReadInbound<IByteBuffer>();
@@ -73,11 +73,11 @@ namespace DotNetty.Codecs.Mllp.Tests
         [Fact]
         public void TestPartialMessage()
         {
-            var ch = new EmbeddedChannel(new FrameDecoder(1024, _prepend, _append));
+            var ch = new EmbeddedChannel(new MllpDecoder(1024, _prepend, _append));
             for (var i = 0; i < 2; i++)
             {
                 ch.WriteInbound(Unpooled.Buffer(2)
-                    .WriteBytes(_prepend)
+                    .WriteByte(_prepend)
                     .WriteBytes(_iso.GetBytes("A")));
                 var buf = ch.ReadInbound<IByteBuffer>();
                 Assert.Null(buf);

@@ -15,20 +15,20 @@ namespace DotNetty.Codecs.Mllp.Tests
         }
 
         private readonly IByteBuffer _msg;
-        private readonly byte[] _prepend = {11};
+        private readonly byte _prepend = 11;
         private readonly byte[] _append = {28, 13};
 
         [Fact]
         public void TestEncodedLength()
         {
-            var ch = new EmbeddedChannel(new FrameEncoder(_prepend, _append));
+            var ch = new EmbeddedChannel(new MllpEncoder(_prepend, _append));
             for (var i = 0; i < 2; i++)
             {
                 ch.WriteOutbound(_msg.Retain());
 
                 var buf = ch.ReadOutbound<IByteBuffer>();
-                Assert.Equal(_prepend.Length, buf.ReadableBytes);
-                Assert.Equal(_prepend, buf.ToArray());
+                Assert.Equal(1, buf.ReadableBytes);
+                Assert.Equal(_prepend, buf.GetByte(0));
                 buf.Release();
 
 

@@ -68,8 +68,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FrameDecoder.cs" />
-    <Compile Include="FrameEncoder.cs" />
+    <Compile Include="MllpDecoder.cs" />
+    <Compile Include="MllpEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
